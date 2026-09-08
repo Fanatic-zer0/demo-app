@@ -1,0 +1,8 @@
+{
+  "name": "@oms-demo/web-ui",
+  "version": "0.1.0",
+  "main": "src/server.js",
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}

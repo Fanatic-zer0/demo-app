@@ -1,0 +1,99 @@
+services:
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis-data:/data
+    ports:
+      - "6379:6379"
+
+  order-service:
+    build:
+      context: .
+      dockerfile: services/order-service/Dockerfile
+    environment:
+      PORT: 8080
+      REDIS_URL: redis://redis:6379
+      INVENTORY_SERVICE_URL: http://inventory-service:8080
+      PAYMENT_SERVICE_URL: http://payment-service:8080
+      SHIPPING_SERVICE_URL: http://shipping-service:8080
+      NOTIFICATION_SERVICE_URL: http://notification-service:8080
+    ports:
+      - "8081:8080"
+    depends_on:
+      - redis
+      - inventory-service
+      - payment-service
+      - shipping-service
+      - notification-service
+
+  inventory-service:
+    build:
+      context: .
+      dockerfile: services/inventory-service/Dockerfile
+    environment:
+      PORT: 8080
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      - redis
+    ports:
+      - "8082:8080"
+
+  payment-service:
+    build:
+      context: .
+      dockerfile: services/payment-service/Dockerfile
+    environment:
+      PORT: 8080
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      - redis
+    ports:
+      - "8083:8080"
+
+  shipping-service:
+    build:
+      context: .
+      dockerfile: services/shipping-service/Dockerfile
+    environment:
+      PORT: 8080
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      - redis
+    ports:
+      - "8084:8080"
+
+  notification-service:
+    build:
+      context: .
+      dockerfile: services/notification-service/Dockerfile
+    environment:
+      PORT: 8080
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      - redis
+    ports:
+      - "8085:8080"
+
+  web-ui:
+    build:
+      context: .
+      dockerfile: services/web-ui/Dockerfile
+    environment:
+      PORT: 8080
+      ORDER_SERVICE_URL: http://order-service:8080
+      INVENTORY_SERVICE_URL: http://inventory-service:8080
+      PAYMENT_SERVICE_URL: http://payment-service:8080
+      SHIPPING_SERVICE_URL: http://shipping-service:8080
+      NOTIFICATION_SERVICE_URL: http://notification-service:8080
+    ports:
+      - "8090:8080"
+    depends_on:
+      - order-service
+      - inventory-service
+      - payment-service
+      - shipping-service
+      - notification-service
+
+volumes:
+  redis-data:

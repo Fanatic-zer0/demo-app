@@ -1,0 +1,23 @@
+{{- if .Values.kong.plugins.enabled }}
+---
+apiVersion: configuration.konghq.com/v1
+kind: KongPlugin
+metadata:
+  name: oms-correlation-id
+  namespace: {{ .Values.namespace.name }}
+plugin: correlation-id
+config:
+  header_name: X-Correlation-Id
+  generator: uuid
+  echo_downstream: true
+---
+apiVersion: configuration.konghq.com/v1
+kind: KongPlugin
+metadata:
+  name: oms-rate-limit
+  namespace: {{ .Values.namespace.name }}
+plugin: rate-limiting
+config:
+  minute: 120
+  policy: local
+{{- end }}

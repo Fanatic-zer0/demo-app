@@ -1,0 +1,24 @@
+{
+  "name": "oms-demo-platform",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Order management microservices demo for Jenkins, Kong, Helm, Argo CD, and Kubernetes.",
+  "workspaces": [
+    "services/*"
+  ],
+  "scripts": {
+    "test": "node --test services/*/test/*.test.js",
+    "start:orders": "node services/order-service/src/server.js",
+    "start:inventory": "node services/inventory-service/src/server.js",
+    "start:payments": "node services/payment-service/src/server.js",
+    "start:shipping": "node services/shipping-service/src/server.js",
+    "start:notifications": "node services/notification-service/src/server.js",
+    "start:ui": "node services/web-ui/src/index.js"
+  },
+  "devDependencies": {
+    "supertest": "^7.0.0"
+  },
+  "dependencies": {
+    "redis": "^4.7.0"
+  }
+}

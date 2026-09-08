@@ -1,0 +1,122 @@
+global:
+  imageRegistry: ghcr.io/example/oms-demo
+  imageTag: "0.1.0"
+  # Never: use images already loaded into the cluster's local Docker/CRI cache (no registry pull)
+  imagePullPolicy: Never
+
+namespace:
+  create: true
+  name: oms-demo
+
+services:
+  order-service:
+    routePrefix: /api/v1/orders
+    image: order-service
+    replicas: 2
+    port: 8080
+    needsRedis: true
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 256Mi
+  inventory-service:
+    routePrefix: /api/v1/inventory
+    image: inventory-service
+    replicas: 2
+    port: 8080
+    needsRedis: true
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 256Mi
+  payment-service:
+    routePrefix: /api/v1/payments
+    image: payment-service
+    replicas: 2
+    port: 8080
+    needsRedis: true
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 256Mi
+  shipping-service:
+    routePrefix: /api/v1/shipments
+    image: shipping-service
+    replicas: 2
+    port: 8080
+    needsRedis: true
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 256Mi
+  notification-service:
+    routePrefix: /api/v1/notifications
+    image: notification-service
+    replicas: 2
+    port: 8080
+    needsRedis: true
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 256Mi
+  web-ui:
+    # Longest-prefix routing means /api/v1/* rules above still win; this is the UI/gateway fallback.
+    routePrefix: /
+    image: web-ui
+    replicas: 1
+    port: 8080
+    needsRedis: false
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+      limits:
+        cpu: 250m
+        memory: 128Mi
+
+# Single-instance Redis backing store shared by all service replicas, so a POST handled by one
+# pod is immediately visible to a GET routed to another pod. Not HA; sufficient for a demo.
+redis:
+  enabled: true
+  image: redis:7-alpine
+  serviceName: redis
+  port: 6379
+  persistence:
+    enabled: true
+    size: 1Gi
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+
+kong:
+  ingress:
+    enabled: true
+    className: kong
+    host: oms-demo.local
+    annotations:
+      konghq.com/preserve-host: "false"
+      konghq.com/strip-path: "false"
+  plugins:
+    enabled: true
+    names:
+      - oms-correlation-id
+      - oms-rate-limit

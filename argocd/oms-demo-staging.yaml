@@ -1,0 +1,32 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: oms-demo-staging
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/example/devops.git
+    targetRevision: main
+    path: demo-app/charts/oms-demo
+    helm:
+      releaseName: oms-demo
+      values: |
+        namespace:
+          name: oms-demo-staging
+        global:
+          imageRegistry: ghcr.io/example/oms-demo
+          imageTag: staging
+        kong:
+          ingress:
+            host: oms-demo-staging.local
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: oms-demo-staging
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

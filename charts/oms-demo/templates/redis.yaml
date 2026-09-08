@@ -1,0 +1,86 @@
+{{- if .Values.redis.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.redis.serviceName }}
+  namespace: {{ .Values.namespace.name }}
+  labels:
+    {{- include "oms-demo.labels" . | nindent 4 }}
+    app.kubernetes.io/component: {{ .Values.redis.serviceName }}
+spec:
+  # Single replica: a demo backing store, not a highly-available cache cluster.
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: {{ .Values.redis.serviceName }}
+  template:
+    metadata:
+      labels:
+        {{- include "oms-demo.labels" . | nindent 8 }}
+        app.kubernetes.io/component: {{ .Values.redis.serviceName }}
+    spec:
+      containers:
+        - name: {{ .Values.redis.serviceName }}
+          image: {{ .Values.redis.image }}
+          args: ["redis-server", "--appendonly", "yes"]
+          ports:
+            - name: redis
+              containerPort: {{ .Values.redis.port }}
+          readinessProbe:
+            tcpSocket:
+              port: redis
+            initialDelaySeconds: 3
+            periodSeconds: 5
+          livenessProbe:
+            tcpSocket:
+              port: redis
+            initialDelaySeconds: 10
+            periodSeconds: 20
+          resources:
+            {{- toYaml .Values.redis.resources | nindent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: /data
+      volumes:
+        - name: data
+          {{- if .Values.redis.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.redis.serviceName }}-data
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.redis.serviceName }}
+  namespace: {{ .Values.namespace.name }}
+  labels:
+    {{- include "oms-demo.labels" . | nindent 4 }}
+    app.kubernetes.io/component: {{ .Values.redis.serviceName }}
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/component: {{ .Values.redis.serviceName }}
+  ports:
+    - name: redis
+      port: {{ .Values.redis.port }}
+      targetPort: redis
+{{- if .Values.redis.persistence.enabled }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Values.redis.serviceName }}-data
+  namespace: {{ .Values.namespace.name }}
+  labels:
+    {{- include "oms-demo.labels" . | nindent 4 }}
+spec:
+  accessModes: ["ReadWriteOnce"]
+  resources:
+    requests:
+      storage: {{ .Values.redis.persistence.size }}
+{{- end }}
+{{- end }}

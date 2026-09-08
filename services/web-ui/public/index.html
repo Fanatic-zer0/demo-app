@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OMS Demo Dashboard</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <h1>Order Management Demo</h1>
+    <div class="trace-panel">
+      Last trace id: <code id="last-trace-id">-</code>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="card">
+      <h2>Place New Order</h2>
+      <form id="order-form">
+        <label>
+          Customer ID
+          <input name="customerId" value="cust-900" required />
+        </label>
+
+        <label>
+          SKU
+          <select name="sku">
+            <option value="SKU-BAG-001">SKU-BAG-001 — Travel Backpack ($89.99)</option>
+            <option value="SKU-BTL-002">SKU-BTL-002 — Insulated Bottle ($29.99)</option>
+          </select>
+        </label>
+
+        <label>
+          Quantity
+          <input name="quantity" type="number" min="1" value="1" required />
+        </label>
+
+        <label>
+          Shipping City
+          <input name="city" value="Seattle" required />
+        </label>
+
+        <button type="submit">Place Order</button>
+      </form>
+      <pre id="order-result" class="result"></pre>
+    </section>
+
+    <section class="card">
+      <div class="card-header">
+        <h2>Orders</h2>
+        <button data-refresh="orders">Refresh</button>
+      </div>
+      <table id="orders-table">
+        <thead>
+          <tr><th>ID</th><th>Customer</th><th>Status</th><th>Total</th><th>Tracking</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <div class="card-header">
+        <h2>Inventory</h2>
+        <button data-refresh="inventory">Refresh</button>
+      </div>
+      <table id="inventory-table">
+        <thead>
+          <tr><th>SKU</th><th>Name</th><th>Available</th><th>Reserved</th><th>Warehouse</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <div class="card-header">
+        <h2>Shipments</h2>
+        <button data-refresh="shipments">Refresh</button>
+      </div>
+      <table id="shipments-table">
+        <thead>
+          <tr><th>ID</th><th>Order</th><th>Status</th><th>Tracking #</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <div class="card-header">
+        <h2>Notifications</h2>
+        <button data-refresh="notifications">Refresh</button>
+      </div>
+      <table id="notifications-table">
+        <thead>
+          <tr><th>ID</th><th>Customer</th><th>Channel</th><th>Template</th><th>Status</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>

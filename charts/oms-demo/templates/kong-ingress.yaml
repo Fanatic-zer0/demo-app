@@ -1,0 +1,31 @@
+{{- if .Values.kong.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "oms-demo.fullname" . }}
+  namespace: {{ .Values.namespace.name }}
+  labels:
+    {{- include "oms-demo.labels" . | nindent 4 }}
+  annotations:
+    {{- range $key, $value := .Values.kong.ingress.annotations }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+    {{- if .Values.kong.plugins.enabled }}
+    konghq.com/plugins: {{ join "," .Values.kong.plugins.names | quote }}
+    {{- end }}
+spec:
+  ingressClassName: {{ .Values.kong.ingress.className }}
+  rules:
+    - host: {{ .Values.kong.ingress.host }}
+      http:
+        paths:
+          {{- range $serviceName, $service := .Values.services }}
+          - path: {{ $service.routePrefix }}
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $serviceName }}
+                port:
+                  number: {{ $service.port }}
+          {{- end }}
+{{- end }}
