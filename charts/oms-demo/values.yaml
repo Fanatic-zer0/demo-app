@@ -6,7 +6,7 @@ global:
 
 namespace:
   create: true
-  name: oms-demo
+  name: apps
 
 services:
   order-service:
