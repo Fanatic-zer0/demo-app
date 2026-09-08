@@ -1,0 +1,5 @@
+
+# Act Runner — secrets locais
+.secrets
+.env.local
+.env.production
