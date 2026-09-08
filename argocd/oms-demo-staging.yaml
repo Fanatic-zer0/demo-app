@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/example/devops.git
+    repoURL: https://github.com/Fanatic-zer0/demo-app.git
     targetRevision: main
     path: demo-app/charts/oms-demo
     helm:
